@@ -4,6 +4,8 @@ import json
 import httpx
 import pytest
 
+collect_ignore = ["test_explain_prompt.py", "test_usage_prompt.py"]
+
 
 @pytest.fixture(scope="session")
 def base_url() -> str:

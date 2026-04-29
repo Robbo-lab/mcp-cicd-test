@@ -5,7 +5,7 @@
 Use these commands against the running MCP/HTTP server started with:
 
 ```bash
-python calculator_api_tutorial.py
+python converter_streamable_http_server.py
 ```
 
 (Default base URL: `http://localhost:8003`)
@@ -254,16 +254,16 @@ These are tested using with the **same MCP session and JSON‑RPC**.
 ### curl command
 
 ```bash
-curl -s "$MCP" -H "Content-Type: application/json, text/event-stream" -H "$ACCEPT" -H "$PROTO" -H "Mcp-Session-Id: $SESSION" -d '{"jsonrpc":"2.0","id":11,"method":"prompts/get","params":{"name":"explain_conersion","arguments":{"input_value":"10","input_unit":"kilometers","target_unit":"miles"}}}'
+curl -s "$MCP" -H "Content-Type: application/json, text/event-stream" -H "$ACCEPT" -H "$PROTO" -H "Mcp-Session-Id: $SESSION" -d '{"jsonrpc":"2.0","id":11,"method":"prompts/get","params":{"name":"explain_conversion","arguments":{"input_value":"10","input_unit":"kilometers","target_unit":"miles"}}}'
 ```
 
 ### Notes
 
-- This is **not** a protocol error if the prompt exists
-- This does **not** perform the conversion — it generates an explanation
-- The output is a **structured prompt** (system + user messages)
-- If the prompt name were wrong, this would become a **protocol‑level error**
-  - Note the code this is intentional and useful.
+- This is not a protocol error if the prompt exists
+- This does not perform the conversion — it generates an explanation
+- The output is a structured prompt (system + user messages)
+- If the prompt name were wrong, this would become a protocol‑level error
+- Note the code this is intentional and useful.
 
 ---
 
@@ -296,9 +296,9 @@ Replace the correct URI from the reponse into the initial command
 
 ### Notes
 
-- Resources are **data**, not actions
+- Resources are data, not actions
 - No arguments are required here
-- If the resource URI is wrong, MCP returns a **protocol error**
+- If the resource URI is wrong, MCP returns a protocol error
 - Resources are ideal for:
   - API reference data
   - Cheatsheets

@@ -75,5 +75,3 @@ Paste messages in order (one line each)- this os shorthand of lifecycle and basi
   to/from feet) via `TOOL_DEFINITIONS`; re‑run the activity.
 - Trigger a validation error (e.g., negative distance) and observe the JSON‑RPC error in Inspector.
 - Later, try **Streamable HTTP** for networked/production deployments.
-
----

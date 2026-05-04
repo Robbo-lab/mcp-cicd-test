@@ -1,7 +1,5 @@
-from fastapi import Depends, HTTPException, APIRouter
+from fastapi import HTTPException, APIRouter
 from pydantic import BaseModel, Field
-from utils.get_principal import Principal, get_current_principal
-from utils.enforce_permissions import enforce_permissions
 import math, time
 
 router = APIRouter(prefix="", tags=["unit-conversion"])
@@ -59,8 +57,7 @@ def miles_to_kilometers_value(miles: float) -> float:
 @router.post("/miles-to-kilometers")
 # def miles_to_kilometers(miles: float):
 def miles_to_kilometers(
-        body: ConversionRequest,     
-        principal: Principal = Depends(get_current_principal),
+        body: ConversionRequest,
         ) -> ConversionResponse:
     """
     HTTP endpoint: convert miles to kilometers with input validation.
@@ -71,12 +68,6 @@ def miles_to_kilometers(
     Returns:
         JSON dict with the result and operation name, or an error message.
     """
-    # import logging
-    # logging.info(f"Endpoint called by user_id={principal.user_id}, roles={principal.roles}, scopes={principal.scopes}, input_miles={body.miles}")
-
-    enforce_permissions(principal)
-    # logging.info(f"Permissions check passed for user_id={principal.user_id}")
-
     try:
         result = miles_to_kilometers_value(body.miles)
         return ConversionResponse(

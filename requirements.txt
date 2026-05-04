@@ -7,3 +7,5 @@ feedparser
 # pydantic
 pytest
 httpx
+google-genai
+python-dotenv

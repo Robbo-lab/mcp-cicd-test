@@ -2,7 +2,7 @@
   "servers": {
     "UnitConverter": {
       "command": "python",
-      "args": ["calculator_api_tutorial.py"]
+      "args": ["converter_streamable_http_server.py"]
     }
   }
 }

@@ -4,19 +4,20 @@ from fastapi import FastAPI, APIRouter
 from fastmcp import FastMCP
 
 from mcp_tools.converter_tools import router as converter_router
+from mcp_tools.converter_tools import kilometers_to_miles_mcp
 from mcp_tools.miles_to_km import router as mile_to_km
 from mcp_prompts.converter_prompts import explain_conversion_prompt, api_usage_prompt
 from mcp_resources.converter_resources import RESOURCE_DEFINITIONS
-from utils.resource_utils import register_resources
 
+from utils.resource_utils import register_resources
 from utils.logging_utils import build_log_config
+
 import platform
 import datetime
 import os
 import time
 from pathlib import Path
 import uvicorn
-
 
 # Set up your logging preferences 
 # LOG_FILE = Path(r".\logs\mcp_log_streamable_http.log")(use forward slashes on mac/Linux too)
@@ -68,6 +69,11 @@ mcp = FastMCP.from_fastapi(
     name="Unit Converter MCP Server",
     instructions="Unit conversion tools with supporting resources and prompts.",
 )
+
+mcp.tool(
+    name="kilometers_to_miles",
+    description="Convert kilometers to miles with one MCP progress notification.",
+)(kilometers_to_miles_mcp)
 
 # --- Register Resources --- dynamically via URI template
 register_resources(mcp, RESOURCE_DEFINITIONS)

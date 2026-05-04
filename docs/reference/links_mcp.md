@@ -25,13 +25,6 @@ Prompts
 Architecture
 • https://modelcontextprotocol.io/docs/concepts/architecture
 
-These explain:
-
-• MCP architecture
-• tool registration
-• schema design
-• how clients interact with servers
-
 ⸻
 
 2. FastMCP / Python Implementation References
@@ -78,7 +71,9 @@ https://github.com/modelcontextprotocol/inspector#usage
 
 Command used in our course:
 
+```bash
 npx @modelcontextprotocol/inspector python converter_stdio_server.py
+```
 
 Inspector allows us to:
 
@@ -120,11 +115,11 @@ https://www.jsonrpc.org/specification
 
 We should understand:
 
-Field Purpose
-jsonrpc protocol version
-method tool name
-params arguments
-id request tracking
+- Field Purpose
+- jsonrpc protocol version
+- method tool name
+- params & arguments
+- id request tracking
 
 ⸻
 
@@ -135,8 +130,6 @@ Since your MCP server runs within a Python environment often using FastAPI/ASGI,
 FastAPI docs:
 
 https://fastapi.tiangolo.com
-
-Key topics:
 
 Request handling
 • https://fastapi.tiangolo.com/tutorial/body/
@@ -162,3 +155,28 @@ Useful concepts:
 • structured tool definitions
 • schema-driven inputs
 • deterministic tool outputs
+
+⸻
+
+8. Google Cloud Project + Gemini API Setup
+   Set up a Google project, create a Gemini API key, and understand current usage limits.
+
+Create and manage Google Cloud projects
+• https://cloud.google.com/resource-manager/docs/creating-managing-projects
+
+Gemini API keys in Google AI Studio
+• https://ai.google.dev/gemini-api/docs/api-key
+
+Google AI Studio API keys page
+• https://aistudio.google.com/app/apikey
+
+Gemini API rate limits
+• https://ai.google.dev/gemini-api/docs/rate-limits
+
+Important notes from the current Gemini rate limits documentation:
+
+• Limits are commonly measured as RPM (requests per minute), TPM (tokens per minute), and RPD (requests per day).
+• Limits are applied per project, not per API key.
+• RPD resets at midnight Pacific time.
+• Limits vary by model and quota tier.
+• Google recommends checking active limits in AI Studio because they can differ by account and change over time.

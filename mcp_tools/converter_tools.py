@@ -1,8 +1,12 @@
 # Conversion logic and HTTP endpoints are defined here so they can be reused
 # by both the FastAPI app and the MCP tool registrations.
 
+import time
+
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel, Field
+from fastmcp import Context
+# from pydantic import BaseModel, Field
+from utils.progress_notifications import report_tool_progress
 
 # class KilometersRequest(BaseModel):
 #     kilometers: float = Field(..., ge=0, description="Distance in kilometers (>= 0)")
@@ -10,9 +14,6 @@ from pydantic import BaseModel, Field
 router = APIRouter(prefix="", tags=["unit-conversion"])
 
 
-# --- Core conversion helpers -------------------------------------------------
-
-#Executes
 def celsius_to_fahrenheit_value(celsius: float) -> float:
     """
     Convert Celsius to Fahrenheit using (°C × 9/5) + 32.
@@ -51,7 +52,7 @@ def kilometers_to_miles_value(kilometers: float) -> float:
     """
     return kilometers * 0.621371
 
-# --- FastAPI endpoints -------------------------------------------------------
+# --- endpoints ---
 
 @router.post("/celsius-to-fahrenheit")
 def celsius_to_fahrenheit(celsius: float):
@@ -104,7 +105,6 @@ def kilometers_to_miles(kilometers: float):
     result = kilometers_to_miles_value(kilometers)
     return {"result": result, "operation": "kilometers_to_miles"}
 
-# --- Metadata for MCP tool registration ----
 
 TOOL_DEFINITIONS = [
     {
@@ -126,3 +126,22 @@ TOOL_DEFINITIONS = [
         "tags": {"distance", "conversion"},
     }
 ]
+
+
+async def kilometers_to_miles_mcp(
+    kilometers: float,
+    server_context: Context,
+) -> dict[str, float | str]:
+    """MCP-facing which sends a progress notification eventy for kilometers-to-miles conversion"""
+
+    await report_tool_progress(
+        server_context,
+        "Running kilometers_to_miles MCP tool",
+    )
+
+    result = kilometers_to_miles_value(kilometers)
+    return {
+        "result": result,
+        "operation": "kilometers_to_miles",
+        "audited_at": time.time(),
+    }

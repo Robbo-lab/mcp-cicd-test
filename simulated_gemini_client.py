@@ -4,12 +4,14 @@ import asyncio
 import os
 import time
 from typing import Any
+from pathlib import Path
 
 from dotenv import load_dotenv
 from fastmcp import Client
 from google import genai
 
-from mcp_prompts.converter_prompts import explain_conversion_prompt
+from utils.logging_utils import build_log_config, configure_logging
+from mcp_prompts.converter_prompts import explain_conversion_prompt, api_usage_prompt
 
 load_dotenv()
 
@@ -18,6 +20,17 @@ GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 MCP_SERVER_URL = os.getenv("MCP_SERVER_URL", "http://localhost:8003/mcp")
 
 KM_TO_MILES_TOOL = "kilometers_to_miles"
+
+# Set up your logging preferences
+LOG_FILE = Path("./logs/gemini_api.log")
+configure_logging(
+    build_log_config(
+        LOG_FILE,
+        console=False,
+        root_level="INFO",
+        logger_level="DEBUG",
+    )
+)
 
 
 def require_env(value: str | None, name: str) -> str:
@@ -140,6 +153,8 @@ async def main() -> None:
         target_unit="miles",
         mcp_result=mcp_result,
     )
+
+    print(prompt)
 
     # Gemini is called only after the MCP server has returned a structured result.
     gemini_client = genai.Client(api_key=api_key)

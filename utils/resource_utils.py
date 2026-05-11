@@ -17,8 +17,6 @@ def register_resources(
     for define in definitions:
         lookup[define["name"]] = define
 
-    print(f"Here are the resources: {lookup}")
-
     def as_text(value: Any) -> str:
         if isinstance(value, str):
             return value

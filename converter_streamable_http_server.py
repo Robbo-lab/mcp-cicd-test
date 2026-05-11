@@ -49,6 +49,16 @@ app.include_router(mile_to_km)
 system_router = APIRouter(prefix="", tags=["system"])
 started_at = time.time()
 
+@system_router.get("/")
+def root():
+    return {
+        "service": "unit-converter-mcp-server",
+        "status": "ok",
+        "docs": "/docs",
+        "health": "/health",
+        "mcp": "/mcp/",
+    }
+
 @system_router.get("/health")
 def health():
     return {

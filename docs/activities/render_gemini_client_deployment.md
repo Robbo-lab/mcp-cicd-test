@@ -2,6 +2,12 @@
 
 This activity documents how to deploy the Gemini client as a separate web service from the MCP server.
 
+Current deployed service URL:
+
+```text
+https://gemini-mcp-client.onrender.com
+```
+
 ## App Location
 
 The Gemini client now lives in:
@@ -130,19 +136,19 @@ Why these settings matter:
 Test the base service endpoints first:
 
 ```bash
-curl -s https://your-gemini-client.onrender.com/
-curl -s https://your-gemini-client.onrender.com/health
+curl -s https://gemini-mcp-client.onrender.com/
+curl -s https://gemini-mcp-client.onrender.com/health
 ```
 
 Then test the Gemini plus MCP flow:
 
 ```bash
-curl -s https://your-gemini-client.onrender.com/explain \
+curl -s https://gemini-mcp-client.onrender.com/explain \
   -H "Content-Type: application/json" \
   -d '{
     "question": "Can you explain how to convert 10 km to miles?",
     "input_value": "10",
-    "input_unit": "km",
+    "input_unit": "kilometers",
     "target_unit": "miles",
     "tool_name": "kilometers_to_miles",
     "tool_arguments": {
@@ -150,6 +156,8 @@ curl -s https://your-gemini-client.onrender.com/explain \
     }
   }'
 ```
+
+This uses the explicitly registered MCP tool name `kilometers_to_miles`, which is listed in the session 14 MCP curl activity.
 
 Expected response shape:
 
@@ -163,20 +171,94 @@ Expected response shape:
 
 ## Example Request
 
+Tool name based on the session 14 tool list:
+
 ```bash
-curl -s https://your-gemini-client.onrender.com/explain \
+curl -s https://gemini-mcp-client.onrender.com/explain \
   -H "Content-Type: application/json" \
   -d '{
     "question": "Can you explain how to convert 10 km to miles?",
     "input_value": "10",
-    "input_unit": "km",
+    "input_unit": "kilometers",
     "target_unit": "miles",
-    "tool_name": "kilometers_to_miles",
+    "tool_name": "kilometers_to_miles_kilometers_to_miles_post",
     "tool_arguments": {
       "kilometers": 10
     }
   }'
 ```
+
+Known-good MCP tool names from `mcp_curl_tests_session14.md` include:
+
+- `fahrenheit_to_celsius_fahrenheit_to_celsius_post`
+- `kilometers_to_miles_kilometers_to_miles_post`
+- `miles_to_kilometers_miles_to_kilometers_post`
+- `kilometers_to_miles`
+
+## Additional Gemini Client curl Examples
+
+### Another conversion tool
+
+This example uses the Fahrenheit to Celsius MCP tool through the Gemini client:
+
+```bash
+curl -s https://gemini-mcp-client.onrender.com/explain \
+  -H "Content-Type: application/json" \
+  -d '{
+    "question": "Can you explain how to convert 77 degrees Fahrenheit to Celsius?",
+    "input_value": "77",
+    "input_unit": "fahrenheit",
+    "target_unit": "celsius",
+    "tool_name": "fahrenheit_to_celsius_fahrenheit_to_celsius_post",
+    "tool_arguments": {
+      "fahrenheit": 77
+    }
+  }'
+```
+
+### `api_usage` prompt example
+
+The Gemini client `/explain` endpoint does not call MCP prompts directly. To test the `api_usage` prompt itself, call the deployed MCP server:
+
+```bash
+MCP_BASE="https://mcp-cicd-test.onrender.com"
+MCP="$MCP_BASE/mcp/"
+ACCEPT="Accept: application/json, text/event-stream"
+PROTO="MCP-Protocol-Version: 2025-06-18"
+SESSION=$(curl -sD - -o /dev/null "$MCP" \
+  -H "Content-Type: application/json" \
+  -H "$ACCEPT" \
+  -H "$PROTO" \
+  -d '{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"curl","version":"1.0"}}}' \
+  | awk 'BEGIN{IGNORECASE=1} /^mcp-session-id:/ {sub(/\r$/,""); print $2}')
+```
+
+```bash
+curl -s "$MCP" \
+  -H "Content-Type: application/json" \
+  -H "$ACCEPT" \
+  -H "$PROTO" \
+  -H "Mcp-Session-Id: $SESSION" \
+  -d '{"jsonrpc":"2.0","id":21,"method":"prompts/get","params":{"name":"api_usage","arguments":{"operation":"kilometers_to_miles"}}}'
+```
+
+### Resource example
+
+The Gemini client `/explain` endpoint does not read MCP resources directly. To test a resource from the deployed MCP server, use:
+
+```bash
+curl -s "$MCP" \
+  -H "Content-Type: application/json" \
+  -H "$ACCEPT" \
+  -H "$PROTO" \
+  -H "Mcp-Session-Id: $SESSION" \
+  -d '{"jsonrpc":"2.0","id":22,"method":"resources/read","params":{"uri":"resource://converter/unit_reference"}}'
+```
+
+Notes:
+
+- use the Gemini client `/explain` endpoint for tool-backed explanation flows
+- use the MCP `/mcp/` endpoint directly for prompt and resource testing
 
 ## Troubleshooting
 
@@ -196,3 +278,25 @@ If the first request is slow:
 
 - Render free services may spin down after inactivity
 - retry after the service wakes up
+
+## Successful Deployment Record
+
+The Gemini client has now been deployed successfully at:
+
+```text
+https://gemini-mcp-client.onrender.com
+```
+
+Confirmed verification targets:
+
+```text
+https://gemini-mcp-client.onrender.com/
+https://gemini-mcp-client.onrender.com/health
+https://gemini-mcp-client.onrender.com/explain
+```
+
+Confirmed integration path:
+
+- Gemini client service on Render
+- deployed MCP server at `https://mcp-cicd-test.onrender.com/mcp/`
+- Gemini API via `GEMINI_API_KEY`

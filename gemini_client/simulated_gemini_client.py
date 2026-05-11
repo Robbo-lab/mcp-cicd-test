@@ -7,7 +7,6 @@ from typing import Any
 
 from dotenv import load_dotenv
 from fastmcp import Client
-from google import genai
 
 from mcp_prompts.converter_prompts import explain_conversion_prompt
 
@@ -107,7 +106,31 @@ Include a short note that Gemini acted as the agent, but the calculation came fr
     return "\n\n".join(sections)
 
 
-async def main() -> None:
+def generate_gemini_explanation(
+    *,
+    api_key: str,
+    prompt: str,
+    model: str,
+) -> str:
+    """Stream Gemini output and return the combined explanation text."""
+
+    from google import genai
+
+    gemini_client = genai.Client(api_key=api_key)
+    stream = gemini_client.models.generate_content_stream(
+        model=model,
+        contents=prompt,
+    )
+
+    chunks: list[str] = []
+    for chunk in stream:
+        if chunk.text:
+            chunks.append(chunk.text)
+
+    return "".join(chunks).strip()
+
+
+async def run_demo() -> None:
     """
     Run the Gemini + MCP integration demo.
 
@@ -141,22 +164,20 @@ async def main() -> None:
         mcp_result=mcp_result,
     )
 
-    # Gemini is called only after the MCP server has returned a structured result.
-    gemini_client = genai.Client(api_key=api_key)
-
-    print("\nGemini streamed explanation:\n")
-
-    stream = gemini_client.models.generate_content_stream(
+    explanation = generate_gemini_explanation(
+        api_key=api_key,
+        prompt=prompt,
         model=GEMINI_MODEL,
-        contents=prompt,
     )
 
-    for chunk in stream:
-        if chunk.text:
-            print(chunk.text, end="")
-
+    print("\nGemini streamed explanation:\n")
+    print(explanation)
     print("\n")
 
 
+def main() -> None:
+    asyncio.run(run_demo())
+
+
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()

@@ -133,7 +133,7 @@ MCP_SERVER_URL=https://your-service-name.onrender.com/mcp
 
 Important:
 
-- `GEMINI_API_KEY` is used by `simulated_gemini_client.py`, not by the FastAPI server startup path itself
+- `GEMINI_API_KEY` is used by `gemini_client/simulated_gemini_client.py`, not by the FastAPI server startup path itself
 - Store secrets in Render environment variables, not in the repository
 
 ## Deploy
@@ -163,6 +163,48 @@ Expected results:
 - `/health` returns a successful JSON response
 - `/docs` loads successfully
 - `/mcp/` is reachable for MCP clients
+
+## Successful Deployment Record
+
+This deployment flow was completed successfully for this repository.
+
+### Git commands used
+
+```bash
+git status --short
+git add converter_streamable_http_server.py utils/resource_utils.py render.yaml docs/activities/render_fastapi_mcp_deployment.md
+git commit -m "Prepare FastAPI MCP server for Render deployment"
+git push
+```
+
+Notes:
+
+- this staged only the intended deployment files
+- unrelated `.DS_Store` changes were intentionally excluded
+
+### Render settings that worked
+
+- Service type: `Web Service`
+- Runtime: `Python`
+- Build Command: `pip install -r requirements.txt`
+- Start Command: `uvicorn converter_streamable_http_server:app --host 0.0.0.0 --port $PORT`
+- Health Check Path: `/health`
+
+### Deployed endpoint checks
+
+The following URLs were used as the post-deploy checks:
+
+```text
+https://<your-service>.onrender.com/
+https://<your-service>.onrender.com/health
+https://<your-service>.onrender.com/docs
+https://<your-service>.onrender.com/mcp/
+```
+
+Outcome:
+
+- deployment succeeded with the repository’s current FastAPI + FastMCP setup
+- the documented Render configuration in this activity is now confirmed working for this repo
 
 ## Troubleshooting
 

@@ -32,7 +32,7 @@ python -m converter_streamable_http_server
 
 ## 3. Review the Gemini client flow
 
-In `simulated_gemini_client.py`, the flow is:
+In `gemini_client/simulated_gemini_client.py`, the flow is:
 
 1. Read environment variables.
 2. Open an MCP client connection to `MCP_SERVER_URL`.
@@ -55,7 +55,7 @@ result = await mcp_client.call_tool(
 In a second terminal:
 
 ```bash
-python -m simulated_gemini_client
+python -m gemini_client.simulated_gemini_client
 ```
 
 Expected output in the terminal:
